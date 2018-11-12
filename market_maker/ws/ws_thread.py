@@ -30,9 +30,11 @@ class BitMEXWebsocket():
     # Don't grow a table larger than this amount. Helps cap memory usage.
     MAX_TABLE_LEN = 200
 
-    def __init__(self):
+    def __init__(self, api_key, api_secret):
         self.logger = logging.getLogger('root')
         self.__reset()
+        self.__api_key = api_key
+        self.__api_secret = api_secret
 
     def __del__(self):
         self.exit()
@@ -186,8 +188,8 @@ class BitMEXWebsocket():
         nonce = generate_expires()
         return [
             "api-expires: " + str(nonce),
-            "api-signature: " + generate_signature(settings.API_SECRET, 'GET', '/realtime', nonce, ''),
-            "api-key:" + settings.API_KEY
+            "api-signature: " + generate_signature(self.__api_secret, 'GET', '/realtime', nonce, ''),
+            "api-key:" + self.__api_key
         ]
 
     def __wait_for_account(self):
@@ -331,4 +333,3 @@ if __name__ == "__main__":
     ws.connect("https://testnet.bitmex.com/api/v1")
     while(ws.ws.sock.connected):
         sleep(1)
-
